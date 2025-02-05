@@ -28,13 +28,9 @@ def construct_pubmedqa_query(elem: dict) -> str:
 
 
 def get_pubmedqa_answer(elem: dict) -> str:
-    final_decision = elem['final_decision']
-    if final_decision == 'yes':
-        return True
-    elif final_decision == 'no':
-        return False
-    else:
-        raise ValueError("Invalid value for 'final_decision'.")
+    if 'final_decision' not in elem:
+        raise ValueError("Missing 'final_decision' in input dict")
+    return elem['final_decision']
     
 
 def submit_query(query: str) -> str:
@@ -51,17 +47,17 @@ def submit_query(query: str) -> str:
     return message
 
 
-def clean_response(response: str) -> bool:
+def clean_response(response: str) -> str:
     # Remove content inside <think>...</think>
     text = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL)
 
     # Find 'Yes' or 'No'
-    match = re.search(r"\b(Yes|No)\b", text, re.IGNORECASE)
+    match = re.search(r"\b(Yes|No|Maybe)\b", text, re.IGNORECASE)
     
     if not match:
-        raise ValueError("Neither 'Yes' nor 'No' found in the text.")
+        raise ValueError("Neither 'Yes', 'No', nor 'Maybe' found in the response.")
     
-    return match.group(0).lower() == "yes"
+    return match.group(0).lower()
 
 
 import csv
