@@ -36,9 +36,9 @@ python main.py --model=deepseek-r1-distill-qwen-7b --output_prefix=-test
 ```
 Output:
 ```sh
-Key: 12377809 Answer: yes Truth: yes
-Key: 26163474 Answer: yes Truth: yes
-Key: 19100463 Answer: maybe Truth: yes
+Key: 12377809 Answer: yes Truth: yes Prompt Tokens: 358 Completion Tokens: 347 Total Tokens: 705
+Key: 26163474 Answer: yes Truth: yes Prompt Tokens: 467 Completion Tokens: 215 Total Tokens: 682
+Key: 19100463 Answer: yes Truth: yes Prompt Tokens: 378 Completion Tokens: 391 Total Tokens: 769
 ...
 Results saved to deepseek-r1-distill-qwen-7b-test-pubmedqa_results.csv
 ```

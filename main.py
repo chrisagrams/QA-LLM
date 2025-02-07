@@ -1,4 +1,5 @@
 from openai import OpenAI
+from typing import Tuple
 import json
 import re
 import csv
@@ -44,12 +45,13 @@ def get_pubmedqa_answer(elem: dict) -> str:
     return elem["final_decision"]
 
 
-def submit_query(query: str) -> str:
+def submit_query(query: str) -> Tuple[str, dict]:
     completion = client.chat.completions.create(
         model=model, messages=[{"role": "user", "content": query}]
     )
     message = completion.choices[0].message.content
-    return message
+    usage = completion.usage
+    return message, usage
 
 
 def clean_response(response: str) -> str:
@@ -75,13 +77,15 @@ if __name__ == "__main__":
         for key, i in test_set.items():
             try:
                 query = construct_pubmedqa_query(i)
-                response = submit_query(query)
+                response, usage = submit_query(query)
                 answer = clean_response(response)
             except Exception:
                 answer = None
 
             truth = get_pubmedqa_answer(i)
-            print(f"Key: {key} Answer: {answer} Truth: {truth}")
+            print(
+                f"Key: {key} Answer: {answer} Truth: {truth} Prompt Tokens: {usage.prompt_tokens} Completion Tokens: {usage.completion_tokens} Total Tokens: {usage.total_tokens}"
+            )
             writer.writerow([key, answer, truth])
 
     print(f"Results saved to {output_file}")
