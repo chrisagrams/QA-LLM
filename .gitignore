@@ -2,3 +2,6 @@
 data/
 .venv/
 *.txt
+__pycache__/
+*.jsonl
+*.png

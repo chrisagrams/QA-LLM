@@ -1,9 +1,9 @@
 from openai import OpenAI
 from typing import Tuple
-import json
 import re
 import csv
 import argparse
+from dataset import *
 
 parser = argparse.ArgumentParser(description="Run PubMedQA on ChatGPT compatable API.")
 parser.add_argument(
@@ -21,28 +21,6 @@ client = OpenAI(
 )
 
 model = args.model
-
-
-def load_pubmedqa_test_set(path: str) -> json:
-    with open(path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    return data
-
-
-def construct_pubmedqa_query(elem: dict) -> str:
-    base_prompt = "For the question, the reference context, and the answer given below, is it possible to infer the answer for that question from the reference context? Only reply as either Yes or No or Maybe."
-    question = elem["QUESTION"]
-    context = "\n".join(elem["CONTEXTS"])
-
-    return (
-        f"{base_prompt}\nQuestion: {question}\nReference context: {context}\nAnswer: "
-    )
-
-
-def get_pubmedqa_answer(elem: dict) -> str:
-    if "final_decision" not in elem:
-        raise ValueError("Missing 'final_decision' in input dict")
-    return elem["final_decision"]
 
 
 def submit_query(query: str) -> Tuple[str, dict]:
@@ -75,12 +53,13 @@ if __name__ == "__main__":
         writer.writerow(["key", "answer", "truth"])
 
         for key, i in test_set.items():
-            try:
-                query = construct_pubmedqa_query(i)
-                response, usage = submit_query(query)
-                answer = clean_response(response)
-            except Exception:
-                answer = None
+            # try:
+            query = construct_pubmedqa_query(i)
+            response, usage = submit_query(query)
+            answer = clean_response(response)
+            # except Exception:
+            #     answer = None
+            #     usage = None
 
             truth = get_pubmedqa_answer(i)
             print(
