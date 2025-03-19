@@ -40,7 +40,8 @@ def clean_response(response: str) -> str:
     match = re.search(r"\b(Yes|No|Maybe)\b", text, re.IGNORECASE)
 
     if not match:
-        raise ValueError("Neither 'Yes', 'No', nor 'Maybe' found in the response.")
+        print("Neither 'Yes', 'No', nor 'Maybe' found in the response.")
+        return "none"
 
     return match.group(0).lower()
 
