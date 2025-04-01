@@ -73,6 +73,6 @@ if __name__ == "__main__":
             print(
                 f"Key: {key} Answer: {answer} Truth: {truth} Reasoning: {think_present} Reasoning Length: {think_length} Prompt Tokens: {usage.prompt_tokens} Completion Tokens: {usage.completion_tokens} Total Tokens: {usage.total_tokens}"
             )
-            writer.writerow([key, answer, truth, think_present])
+            writer.writerow([key, answer, truth, think_present, think_length])
 
     print(f"Results saved to {output_file}")
