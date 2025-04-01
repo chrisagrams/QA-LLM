@@ -48,7 +48,7 @@ def clean_response(response: str) -> Union[Tuple[str, bool, int], str]:
 
     if not match:
         print("Neither 'Yes', 'No', nor 'Maybe' found in the response.")
-        return "none", False, 0
+        return "none", think_present, think_length
 
     return match.group(0).lower(), think_present, think_length
 
