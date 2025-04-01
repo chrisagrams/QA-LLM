@@ -32,7 +32,10 @@ def submit_query(query: str) -> Tuple[str, dict]:
     return message, usage
 
 
-def clean_response(response: str) -> str:
+def clean_response(response: str) -> Tuple[str, bool]:
+    # Check if <think>...</think> is present
+    think_present = bool(re.search(r"<think>.*?</think>", response, flags=re.DOTALL))
+
     # Remove content inside <think>...</think>
     text = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL)
 
@@ -43,7 +46,7 @@ def clean_response(response: str) -> str:
         print("Neither 'Yes', 'No', nor 'Maybe' found in the response.")
         return "none"
 
-    return match.group(0).lower()
+    return match.group(0).lower(), think_present
 
 
 if __name__ == "__main__":
@@ -51,21 +54,21 @@ if __name__ == "__main__":
     output_file = f"{model}{args.output_prefix}-pubmedqa_results.csv"
     with open(output_file, "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["key", "answer", "truth"])
+        writer.writerow(["key", "answer", "truth", "reasoning"])
 
         for key, i in test_set.items():
             # try:
             query = construct_pubmedqa_query(i)
             response, usage = submit_query(query)
-            answer = clean_response(response)
+            answer, think_present = clean_response(response)
             # except Exception:
             #     answer = None
             #     usage = None
 
             truth = get_pubmedqa_answer(i)
             print(
-                f"Key: {key} Answer: {answer} Truth: {truth} Prompt Tokens: {usage.prompt_tokens} Completion Tokens: {usage.completion_tokens} Total Tokens: {usage.total_tokens}"
+                f"Key: {key} Answer: {answer} Truth: {truth} Reasoning: {think_present} Prompt Tokens: {usage.prompt_tokens} Completion Tokens: {usage.completion_tokens} Total Tokens: {usage.total_tokens}"
             )
-            writer.writerow([key, answer, truth])
+            writer.writerow([key, answer, truth, think_present])
 
     print(f"Results saved to {output_file}")
