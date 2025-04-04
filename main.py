@@ -1,4 +1,4 @@
-from openai import OpenAI
+from openai import OpenAI, InternalServerError
 from typing import Tuple, Union
 import re
 import csv
@@ -13,6 +13,7 @@ parser.add_argument("--api_key", default="token-abc123")
 parser.add_argument("--model")
 parser.add_argument("--test_set", default="data/pubmedqa/test_set.json")
 parser.add_argument("--output_prefix", default="")
+parser.add_argument("--num_retries", type=int, default=3)
 args = parser.parse_args()
 
 client = OpenAI(
@@ -61,15 +62,24 @@ if __name__ == "__main__":
         writer.writerow(["key", "answer", "truth", "reasoning", "reasoning_length"])
 
         for key, i in test_set.items():
-            # try:
-            query = construct_pubmedqa_query(i)
-            response, usage = submit_query(query)
-            answer, think_present, think_length = clean_response(response)
-            # except Exception:
-            #     answer = None
-            #     usage = None
-
-            truth = get_pubmedqa_answer(i)
+            for attempt in range(args.num_retries):
+                try:
+                    query = construct_pubmedqa_query(i)
+                    response, usage = submit_query(query)
+                    answer, think_present, think_length = clean_response(response)
+                    truth = get_pubmedqa_answer(i)
+                    success = True
+                    break
+                except InternalServerError:
+                    continue
+            if not success:
+                query = None
+                response = None
+                usage = 0
+                answer = None
+                think_present = False
+                think_length = 0
+            
             print(
                 f"Key: {key} Answer: {answer} Truth: {truth} Reasoning: {think_present} Reasoning Length: {think_length} Prompt Tokens: {usage.prompt_tokens} Completion Tokens: {usage.completion_tokens} Total Tokens: {usage.total_tokens}"
             )
