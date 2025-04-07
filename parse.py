@@ -20,7 +20,7 @@ def calculate_reasoning_count(csv_file):
         count = (df['reasoning'] == True).sum()
         total = len(df)
         percent_reasoning = count / total if total > 0 else 0
-        print(f"Percent reasoning: {percent_reasoning::.2%}")
+        print(f"Percent reasoning: {percent_reasoning:.2%}")
     else:
         print(f"No reasoning check in CSV.")
 
