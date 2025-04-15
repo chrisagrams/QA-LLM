@@ -33,22 +33,29 @@ def submit_query(query: str) -> Tuple[str, dict]:
     return message, usage
 
 
-def clean_response(response: str) -> Union[Tuple[str, bool, int], str]:
+def clean_response(response: str) -> Tuple[str, bool, int]:
+    # Look for <think> block
     think_match = re.search(r"<think>(.*?)</think>", response, flags=re.DOTALL)
     think_present = bool(think_match)
-    think_length = len(think_match.group(1)) if think_present else 0
+    think_length = len(think_match.group(1).strip()) if think_present else 0
 
-    # Get text after </think>
-    parts = re.split(r"</think>", response, flags=re.DOTALL)
-    text = parts[-1] if len(parts) > 1 else response
+    # Only look for the answer *after* </think>
+    if think_present:
+        response_tail = response.split("</think>", 1)[-1]
+    else:
+        response_tail = response
 
-    match = re.search(r"\b(Yes|No|Maybe)\b", text, re.IGNORECASE)
+    match = re.search(r"\b(Yes|No|Maybe)\b", response_tail, re.IGNORECASE)
 
     if not match:
-        print("Neither 'Yes', 'No', nor 'Maybe' found in the response.")
+        print("Neither 'Yes', 'No', nor 'Maybe' found in the response tail:")
+        print("==== Response ====")
+        print(response)
+        print("==================")
         return "none", think_present, think_length
 
     return match.group(0).lower(), think_present, think_length
+
 
 
 
