@@ -34,17 +34,14 @@ def submit_query(query: str) -> Tuple[str, dict]:
 
 
 def clean_response(response: str) -> Union[Tuple[str, bool, int], str]:
-    # Check if <think>...</think> is present
     think_match = re.search(r"<think>(.*?)</think>", response, flags=re.DOTALL)
     think_present = bool(think_match)
-    
-    # Calculate the length of the text inside <think> tags
     think_length = len(think_match.group(1)) if think_present else 0
 
-    # Remove content inside <think>...</think>
-    text = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL)
+    # Get text after </think>
+    parts = re.split(r"</think>", response, flags=re.DOTALL)
+    text = parts[-1] if len(parts) > 1 else response
 
-    # Find 'Yes', 'No', or 'Maybe'
     match = re.search(r"\b(Yes|No|Maybe)\b", text, re.IGNORECASE)
 
     if not match:
@@ -52,6 +49,7 @@ def clean_response(response: str) -> Union[Tuple[str, bool, int], str]:
         return "none", think_present, think_length
 
     return match.group(0).lower(), think_present, think_length
+
 
 
 if __name__ == "__main__":
