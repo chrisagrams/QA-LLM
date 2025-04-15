@@ -45,7 +45,7 @@ def clean_response(response: str) -> Tuple[str, bool, int]:
     else:
         response_tail = response
 
-    match = re.search(r"^\s*(yes|no|maybe)\b", response_tail, re.IGNORECASE | re.MULTILINE)
+    match = re.search(r"(yes|no|maybe)", response_tail, re.IGNORECASE | re.MULTILINE)
 
     if not match:
         print("Neither 'Yes', 'No', nor 'Maybe' found in the response tail:")
@@ -55,8 +55,6 @@ def clean_response(response: str) -> Tuple[str, bool, int]:
         return "none", think_present, think_length
 
     return match.group(0).lower(), think_present, think_length
-
-
 
 
 if __name__ == "__main__":
